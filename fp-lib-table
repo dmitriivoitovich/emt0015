@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "RK_COURSE")(type "KiCad")(uri "${KIPRJMOD}/Robotiklubi-Kicad-Footprint.pretty")(options "")(descr ""))
+  (lib (name "KURSUS")(type "KiCad")(uri "${KIPRJMOD}/Robotiklubi-Kicad-Footprint.pretty")(options "")(descr ""))
+)

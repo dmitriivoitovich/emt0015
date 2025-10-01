@@ -1,0 +1,192 @@
+(footprint "6A125VAC_NO-NO_SWITCH"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "S?"
+		(at 0 -4.572 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "23121b4c-7979-4f47-96f3-556ddf07de36")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.2)
+				(bold yes)
+			)
+		)
+	)
+	(property "Value" "6A125VAC_NO-NO_SWITCH"
+		(at 0 -8.89 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "0359255e-bc46-4ff5-b677-2393d34198c2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "b9640382-23fa-4f6b-b547-b4f78727827e")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "edabe324-1ecb-4c99-acc0-5d1a85949cab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_rect
+		(start -4.13 -2.755)
+		(end 4.09 10.8725)
+		(stroke
+			(width 0.2)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "c3012900-138b-4b96-9a98-e0816383c6b1")
+	)
+	(fp_text user "NC"
+		(at 3.44 9.8 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "33da3430-a269-43e0-aa0a-1e42ea0d191c")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.2)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "C"
+		(at 3.53 4.91 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "4260db8c-9e04-4c14-933f-c55875b2c42e")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.2)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "NO"
+		(at 3.58 1.32 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "b28fa7ff-1174-4e61-b152-67334a173526")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.2)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 -6.604 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "62a2bd55-9de9-44e9-8f85-904c42a30697")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 3.5 2)
+		(drill oval 2.2 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.1666666667)
+		(uuid "ecc5d4f7-16ac-4ab0-be5a-9f09b87ed90c")
+	)
+	(pad "2" thru_hole oval
+		(at 0 4.18)
+		(size 3.5 2)
+		(drill oval 2.2 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5ea1a275-7666-47ce-8e23-ad9b690d6846")
+	)
+	(pad "3" thru_hole oval
+		(at 0 8.36)
+		(size 3.5 2)
+		(drill oval 2.2 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "caa56afa-374b-4a24-bc10-edb21171d18c")
+	)
+	(zone
+		(net 0)
+		(net_name "")
+		(layers "*.CrtYd")
+		(uuid "adac0372-1928-49fa-b1d0-1e44baf288ef")
+		(hatch edge 0.5)
+		(connect_pads
+			(clearance 0)
+		)
+		(min_thickness 0.25)
+		(filled_areas_thickness no)
+		(keepout
+			(tracks allowed)
+			(vias allowed)
+			(pads allowed)
+			(copperpour allowed)
+			(footprints not_allowed)
+		)
+		(placement
+			(enabled no)
+			(sheetname "")
+		)
+		(fill
+			(thermal_gap 0.5)
+			(thermal_bridge_width 0.5)
+		)
+		(polygon
+			(pts
+				(xy -4.985 -3.37) (xy 4.845 -3.37) (xy 4.845 11.625) (xy -4.985 11.625)
+			)
+		)
+	)
+	(embedded_fonts no)
+	(model "${ROBOTIKLUBI_3D}/toggle_switch.step"
+		(offset
+			(xyz -4 2.5 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 90)
+		)
+	)
+)
