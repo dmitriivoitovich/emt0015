@@ -1137,4 +1137,15 @@
 			(xyz -90 -0 -90)
 		)
 	)
+	(model "${ROBOTIKLUBI_3D}/ESP32-S3.STEP"
+		(offset
+			(xyz 13.5 -55 13.5)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -90)
+		)
+	)
 )

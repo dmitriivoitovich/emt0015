@@ -21,8 +21,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "J3"
-				(at 0 -8.89 0)
+			(property "Reference" "J"
+				(at 0 2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -30,14 +30,14 @@
 				)
 			)
 			(property "Value" "Conn_01x02"
-				(at 0 -6.35 0)
+				(at 0 -5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal"
+			(property "Footprint" ""
 				(at 0 0 0)
 				(effects
 					(font
@@ -116,7 +116,7 @@
 						(type none)
 					)
 				)
-				(pin power_out line
+				(pin passive line
 					(at -5.08 0 0)
 					(length 3.81)
 					(name "Pin_1"
@@ -403,6 +403,130 @@
 						)
 					)
 					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5650,7 +5774,7 @@
 				)
 			)
 		)
-		(property "Footprint" "KURSUS:ESP32-S3-DevKitC-1"
+		(property "Footprint" "RK_COURSE:ESP32-S3-DevKitC-1"
 			(at 172.72 51.308 0)
 			(effects
 				(font
@@ -6011,115 +6135,6 @@
 			(project "RK_course_autumn_2025_blank"
 				(path "/a85e8d7d-6e69-4ae0-af3b-65bd111e6aa4"
 					(reference "#PWR02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Kursus:TB6612FNG_MOTOR_DRIVER_RED")
-		(at 152.4 78.74 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "666ca5bb-1522-4f90-b686-dd2dbabbc5a0")
-		(property "Reference" "U6"
-			(at 154.94 76.454 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "~"
-			(at 152.4 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TANK:TB6612FNG_DUAL_MOTOR_DRIVER_RED"
-			(at 152.4 75.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 152.4 75.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 152.4 75.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "15"
-			(uuid "62d658ba-6310-4801-a3a3-9c0f81097deb")
-		)
-		(pin "14"
-			(uuid "4370df43-3f0d-4a9d-9341-cbc8dc2d4016")
-		)
-		(pin "16"
-			(uuid "d63c113b-61fa-4a74-8263-451ef870a11e")
-		)
-		(pin "1"
-			(uuid "91a53e9a-3cbc-4907-b9ca-547211802472")
-		)
-		(pin "2"
-			(uuid "e9b8fc2d-7d8c-419d-8249-9eeede26a7ac")
-		)
-		(pin "10"
-			(uuid "78989af8-8e77-4802-ab63-21468ba7d801")
-		)
-		(pin "5"
-			(uuid "594b3a9f-08e5-4b61-9be9-851b9e8f55d5")
-		)
-		(pin "6"
-			(uuid "0b2f8d70-7cc7-48fe-aa2d-a0a818f71895")
-		)
-		(pin "4"
-			(uuid "054de5b3-cf71-4946-9ed8-2fe46af57466")
-		)
-		(pin "9"
-			(uuid "0de69a0e-42fd-4ff1-b37d-ec7a5d360a82")
-		)
-		(pin "11"
-			(uuid "d98ae4e4-f1c0-42bd-9aad-ecff47d2f1ea")
-		)
-		(pin "8"
-			(uuid "400b86d8-8de7-49e6-b364-afe32b03980f")
-		)
-		(pin "12"
-			(uuid "c3fa4933-f2f3-447c-a1b1-acf98a1f95f7")
-		)
-		(pin "7"
-			(uuid "365767a2-030f-4183-8fdb-b4373454138a")
-		)
-		(pin "3"
-			(uuid "1af922db-6392-4d3c-a7cb-23a7e5bbca15")
-		)
-		(pin "13"
-			(uuid "972808d0-9e1b-4899-8df1-20b19bf7395d")
-		)
-		(instances
-			(project "RK_course_autumn_2025_blank"
-				(path "/a85e8d7d-6e69-4ae0-af3b-65bd111e6aa4"
-					(reference "U6")
 					(unit 1)
 				)
 			)
@@ -6685,6 +6700,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 71.12 27.94 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8bf396be-9b05-42e1-b4f2-c7e115eb610c")
+		(property "Reference" "R1"
+			(at 73.66 26.6699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R"
+			(at 73.66 29.2099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 69.342 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 71.12 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1c557448-614d-443b-9038-720c26dc4d88")
+		)
+		(pin "2"
+			(uuid "88947e31-0acf-4666-9a7e-d5e97270648e")
+		)
+		(instances
+			(project ""
+				(path "/a85e8d7d-6e69-4ae0-af3b-65bd111e6aa4"
+					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Kursus:PINGEREGU")
 		(at 43.18 26.67 0)
 		(unit 1)
@@ -6917,7 +7002,7 @@
 				)
 			)
 		)
-		(property "Footprint" "TANK:TB6612FNG_DUAL_MOTOR_DRIVER_RED"
+		(property "Footprint" "KURSUS:TB6612FNG_DUAL_MOTOR_DRIVER_RED"
 			(at 110.49 75.565 0)
 			(effects
 				(font
@@ -7260,6 +7345,115 @@
 			(project "RK_course_autumn_2025_blank"
 				(path "/a85e8d7d-6e69-4ae0-af3b-65bd111e6aa4"
 					(reference "#PWR017")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Kursus:TB6612FNG_MOTOR_DRIVER_RED")
+		(at 152.4 78.74 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cad7762c-0b56-443a-bac0-a5551e7eacee")
+		(property "Reference" "U6"
+			(at 154.94 76.454 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "~"
+			(at 152.4 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "KURSUS:TB6612FNG_DUAL_MOTOR_DRIVER_RED"
+			(at 152.4 75.565 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 75.565 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 152.4 75.565 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "15"
+			(uuid "cd67c94e-5360-4c7d-95d9-1b37bd5cf2c8")
+		)
+		(pin "14"
+			(uuid "ec52ca8c-4dda-4a82-aaaa-fafa80efb2e5")
+		)
+		(pin "16"
+			(uuid "a4340593-a683-499f-b191-7b1552086fd3")
+		)
+		(pin "1"
+			(uuid "a818bbce-7564-45d1-ad99-263326601c7d")
+		)
+		(pin "2"
+			(uuid "360c3a38-1645-402b-9aa2-d59b0bea5732")
+		)
+		(pin "10"
+			(uuid "c52a6830-3420-40c6-b8d0-d60d75938dd4")
+		)
+		(pin "5"
+			(uuid "a1f8ac22-52e5-4d18-a204-82d3b502af3a")
+		)
+		(pin "6"
+			(uuid "f2f2b2b9-5ca8-4af7-bec9-93d34baa95db")
+		)
+		(pin "4"
+			(uuid "6ff5ba86-d193-484e-9904-bce4cdfc1b03")
+		)
+		(pin "9"
+			(uuid "0b181b48-da19-489e-9f62-aa10e9496407")
+		)
+		(pin "11"
+			(uuid "de4f858e-f43d-48c0-abe0-16fe7c208b6e")
+		)
+		(pin "8"
+			(uuid "6f47e7f4-f54e-4a6b-b04a-ffbb311b159e")
+		)
+		(pin "12"
+			(uuid "cd0bfab3-9d8d-482b-9c7f-2d3479208825")
+		)
+		(pin "7"
+			(uuid "679e622e-142f-44dd-ab0c-6f2e020300b4")
+		)
+		(pin "3"
+			(uuid "aaab4763-b5d5-4ce7-85fd-ae8ab33f2e11")
+		)
+		(pin "13"
+			(uuid "365deb7a-6fb5-418c-ac24-af8028c44ea9")
+		)
+		(instances
+			(project "RK_course_autumn_2025_blank"
+				(path "/a85e8d7d-6e69-4ae0-af3b-65bd111e6aa4"
+					(reference "U6")
 					(unit 1)
 				)
 			)
