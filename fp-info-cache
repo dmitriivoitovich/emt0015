@@ -1,4 +1,4 @@
-26684678362078096
+26683888695787299
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -69307,6 +69307,13 @@ KURSUS
 3
 3
 KURSUS
+AMASS_XT30PW-M_1x02_P2.50mm_Horizontal
+Connector XT30 Horizontal PCB Male, https://www.tme.eu/Document/6eb2005a51a52592b3f19e8a450c54c8/XT30PW-M.pdf
+RC Connector XT30
+0
+4
+2
+KURSUS
 AMASS_XT30U-M_1x02_P5.0mm_Vertical
 Connector XT30 Vertical Cable Male, https://www.tme.eu/Document/7d9d972ae3468777f69ec2ee99897652/XT30U-M.pdf
 RC Connector XT30
@@ -69334,6 +69341,20 @@ ESP32-S3-DevKitC-1
 0
 44
 44
+KURSUS
+IMU
+
+
+0
+10
+10
+KURSUS
+JST_ZH_B6B-ZR_1x06_P1.50mm_Vertical
+JST ZH series connector, B6B-ZR (http://www.jst-mfg.com/product/pdf/eng/eZH.pdf), generated with kicad-footprint-generator
+connector JST ZH vertical
+0
+6
+6
 KURSUS
 MOTOR_CONNECTOR
 Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated
@@ -94864,6 +94885,13 @@ RK_COURSE
 3
 3
 RK_COURSE
+AMASS_XT30PW-M_1x02_P2.50mm_Horizontal
+Connector XT30 Horizontal PCB Male, https://www.tme.eu/Document/6eb2005a51a52592b3f19e8a450c54c8/XT30PW-M.pdf
+RC Connector XT30
+0
+4
+2
+RK_COURSE
 AMASS_XT30U-M_1x02_P5.0mm_Vertical
 Connector XT30 Vertical Cable Male, https://www.tme.eu/Document/7d9d972ae3468777f69ec2ee99897652/XT30U-M.pdf
 RC Connector XT30
@@ -94891,6 +94919,20 @@ ESP32-S3-DevKitC-1
 0
 44
 44
+RK_COURSE
+IMU
+
+
+0
+10
+10
+RK_COURSE
+JST_ZH_B6B-ZR_1x06_P1.50mm_Vertical
+JST ZH series connector, B6B-ZR (http://www.jst-mfg.com/product/pdf/eng/eZH.pdf), generated with kicad-footprint-generator
+connector JST ZH vertical
+0
+6
+6
 RK_COURSE
 MOTOR_CONNECTOR
 Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated
