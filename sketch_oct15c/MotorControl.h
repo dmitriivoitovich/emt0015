@@ -1,4 +1,4 @@
-#pragme once
+#pragma once
 #include <Arduino.h>
 #include <Config.h>
 
@@ -16,4 +16,4 @@ class MotorControl {
     static void leftBackward(int pwm);
     static void rightForward(int pwm);
     static void rightBackward(int pwm);
-}
+};
