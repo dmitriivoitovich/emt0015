@@ -405,15 +405,15 @@
 		(uuid "dcf9b550-d66d-4aed-b629-a4aaa009b914")
 	)
 	(embedded_fonts no)
-	(model "${ROBOTIKLUBI_3D}/XT30PW-F.STEP"
+	(model "${ROBOTIKLUBI_3D}/Amass_XT30PW-M_pcb solder.stp"
 		(offset
-			(xyz -2.5 5.5 0)
+			(xyz -2.5 4 2.5)
 		)
 		(scale
 			(xyz 1 1 1)
 		)
 		(rotate
-			(xyz -0 -0 90)
+			(xyz -0 -0 -180)
 		)
 	)
 )
