@@ -103,7 +103,7 @@ void loop() {
         float error = leftNorm - rightNorm;
 
         float corridorTightness = (MAX_DIST - ((leftSensorDistance + rightSensorDistance) / 2.0)) / MAX_DIST;
-        float sensitivity = 1.0 + corridorTightness * 2.0; // 1–3×
+        float sensitivity = 1.0 + corridorTightness * 2.0;
         float correction = Kp * error * sensitivity;
         // float correction = (error >= 0 ? sqrt(error) : -sqrt(-error));
 
