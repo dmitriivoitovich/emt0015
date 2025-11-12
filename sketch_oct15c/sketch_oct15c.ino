@@ -32,13 +32,6 @@ SensorControl sensors(left, mid, right);
 
 State state = FORWARD;
 
-
-// float Ki = 0.0;
-// float Kd = 0.2;
-// float error = 0;
-// float lastError = 0;
-// float sumError = 0;
-
 void setup() {
   Serial.begin(115200);
 
@@ -53,23 +46,35 @@ void setup() {
   MotorControl::begin();
 }
 
-const int MIN_SPEED = 0;
-const int MAX_SPEED = 255/3;
-const int SLOW_SPEED = MAX_SPEED / 3;
+const int MIN_SPEED = 30;
+const int MAX_SPEED = 255;
 
 const float MIN_DIST = 50.0;
 const float MAX_DIST = 2000.0;
 
-const float Kp = 1;
+const float Kp = 0.5;
+
+static float leftFiltered = 0;
+static float rightFiltered = 0;
+static float midFiltered = 0;
+float alpha = 0.7;
 
 void loop() {
     int leftSensorDistance = sensors.readSensorData(left.index);
     int midSensorDistance = sensors.readSensorData(mid.index);
     int rightSensorDistance = sensors.readSensorData(right.index);
 
-    float leftNorm  = normalizeDistance(leftSensorDistance);
-    float midNorm   = normalizeDistance(midSensorDistance);
-    float rightNorm = normalizeDistance(rightSensorDistance);
+    leftFiltered  = alpha * leftSensorDistance  + (1 - alpha) * leftFiltered;
+    midFiltered   = alpha * midSensorDistance   + (1 - alpha) * midFiltered;
+    rightFiltered = alpha * rightSensorDistance + (1 - alpha) * rightFiltered;
+
+    float leftNorm  = normalizeDistance(leftFiltered);
+    float midNorm   = normalizeDistance(midFiltered);
+    float rightNorm = normalizeDistance(rightFiltered);
+
+    float clearance = (leftNorm + rightNorm + midNorm) / 3.0;
+    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * clearance;
+    float maneuverSpeed = constrain(baseSpeed / 2, MIN_SPEED * 2, MAX_SPEED / 2);
 
     Serial.println("Distances: L=" + String(leftSensorDistance) + " (" + String(leftNorm) + ") M=" + String(midSensorDistance) + " (" + String(midNorm) + ") R=" + String(rightSensorDistance) + " (" + String(rightNorm) + ")");
     Serial.println("State: " + String(state));
@@ -102,19 +107,18 @@ void loop() {
         float correction = Kp * error * sensitivity;
         // float correction = (error >= 0 ? sqrt(error) : -sqrt(-error));
 
-        float leftSpeed  = constrain(MAX_SPEED * (1.0 + correction), MIN_SPEED, MAX_SPEED);
-        float rightSpeed = constrain(MAX_SPEED * (1.0 - correction), MIN_SPEED, MAX_SPEED);
+        float leftSpeed  = constrain(baseSpeed * (1.0 + correction), MIN_SPEED, baseSpeed);
+        float rightSpeed = constrain(baseSpeed * (1.0 - correction), MIN_SPEED, baseSpeed);
 
-        // max speed 255 / 3 = 85
-        // left distance 30 sm -> normalized 0.15
-        // right distance 150 sm -> normalized 0.75
-        // error = 0.15 - 0.75 = -0.6 * Kp(1.5) = -0.9
-        // left speed = 85 * (1 - 0.9) = 8.5
-        // right speed = 85 * (1 + 0.9) = 161.5 -> constrained to 85
-
-
-        Serial.println("Error: " + String(error) + " Correction: " + String(correction));
-        Serial.println("Left speed: " + String(leftSpeed) + " Right speed: " + String(rightSpeed));
+        Serial.printf(
+          "{L:%d M:%d R:%d e:%.2f c:%.2f s:%d}\n",
+          leftSensorDistance,
+          midSensorDistance,
+          rightSensorDistance,
+          error,
+          correction,
+          state
+        );
 
         MotorControl::moveForward(leftSpeed, rightSpeed);
 
@@ -137,9 +141,9 @@ void loop() {
         }
 
         if (leftNorm > rightNorm) {
-          MotorControl::turnRight(MAX_SPEED, MAX_SPEED);
+          MotorControl::turnRight(maneuverSpeed, maneuverSpeed);
         } else {
-          MotorControl::turnLeft(MAX_SPEED, MAX_SPEED);
+          MotorControl::turnLeft(maneuverSpeed, maneuverSpeed);
         }
 
         break;
@@ -160,7 +164,7 @@ void loop() {
           break;
         }
 
-        MotorControl::moveBackward(SLOW_SPEED, SLOW_SPEED);
+        MotorControl::moveBackward(maneuverSpeed, maneuverSpeed);
 
         break;
       }
