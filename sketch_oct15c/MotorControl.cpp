@@ -15,23 +15,23 @@ void MotorControl::stop() {
   analogWrite(RIGHT_MOTOR_PWM, 0);
 }
 
-void MotorControl::moveForward(int pwm) {
-  leftForward(pwm);
-  rightForward(pwm);
-}
-
-void MotorControl::moveBackward(int pwm) {
-  leftBackward(pwm);
-  rightBackward(pwm);
-}
-
-void MotorControl::turnRight(int leftSpeed, int rightSpeed) {
+void MotorControl::moveForward(int leftSpeed, int rightSpeed) {
   leftForward(leftSpeed);
   rightForward(rightSpeed);
 }
 
-void MotorControl::turnLeft(int leftSpeed, int rightSpeed) {
+void MotorControl::moveBackward(int leftSpeed, int rightSpeed) {
+  leftBackward(leftSpeed);
+  rightBackward(rightSpeed);
+}
+
+void MotorControl::turnRight(int leftSpeed, int rightSpeed) {
   leftForward(leftSpeed);
+  rightBackward(rightSpeed);
+}
+
+void MotorControl::turnLeft(int leftSpeed, int rightSpeed) {
+  leftBackward(leftSpeed);
   rightForward(rightSpeed);
 }
 

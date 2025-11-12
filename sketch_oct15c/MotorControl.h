@@ -5,8 +5,8 @@
 class MotorControl {
   public:
     static void begin();
-    static void moveForward(int pwm);
-    static void moveBackward(int pwm);
+    static void moveForward(int leftSpeed, int rightSpeed);
+    static void moveBackward(int leftSpeed, int rightSpeed);
     static void turnLeft(int leftSpeed, int rightSpeed);
     static void turnRight(int leftSpeed, int rightSpeed);
     static void stop();

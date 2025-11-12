@@ -21,6 +21,8 @@ bool SensorControl::begin() {
           return 0;
       }
   }
+
+  return 1;
 }
 
 bool SensorControl::initOne(Sensor& sensor) {
