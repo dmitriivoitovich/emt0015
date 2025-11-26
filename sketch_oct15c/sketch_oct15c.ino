@@ -174,7 +174,6 @@ State calculate_state(State currentState, float distance) {
     return state;
 }
 
-
 void handle_forward_state(float leftDistance, float rightDistance, int speed) {
     int leftSpeed = speed;
     int rightSpeed = speed;
