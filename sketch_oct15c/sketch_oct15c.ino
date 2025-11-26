@@ -4,6 +4,18 @@
 #include "MotorControl.h"
 #include "SensorControl.h"
 
+const int MIN_SPEED = 30;
+const int MAX_SPEED = 255;
+
+const float MIN_DIST = 100.0;
+const float MAX_DIST = 1000.0;
+
+const float FORWARD_MODE_DIST = 500.0 / MAX_DIST;
+const float AVOID_MODE_DIST = 300.0 / MAX_DIST;
+const float SEARCH_MODE_DIST = 150.0 / MAX_DIST;
+
+const float Kp = 0.7;
+
 enum State {
   FORWARD,
   AVOID,
@@ -32,6 +44,44 @@ SensorControl sensors(left, mid, right);
 
 State state = FORWARD;
 
+float alpha = 0.7;
+
+static float leftSensorDistance = 0.0;
+static float midSensorDistance = 0.0;
+static float rightSensorDistance = 0.0;
+
+void TaskReadSensors(void *pvParameters) {
+  int leftFiltered = 0;
+  int midFiltered = 0;
+  int rightFiltered = 0;
+
+  for(;;) {
+    int l = sensors.readSensorData(left.index);
+    int m = sensors.readSensorData(mid.index);
+    int r = sensors.readSensorData(right.index);
+
+    leftFiltered = alpha * l + (1 - alpha) * leftFiltered;
+    midFiltered = alpha * m + (1 - alpha) * midFiltered;
+    rightFiltered = alpha * r + (1 - alpha) * rightFiltered;
+
+//     Serial.println("Raw Distances: L=" + String(l) + " M=" + String(m) + " R=" + String(r));
+
+    leftFiltered  = constrain(leftFiltered, MIN_DIST, MAX_DIST);
+    midFiltered   = constrain(midFiltered, MIN_DIST, MAX_DIST);
+    rightFiltered = constrain(rightFiltered, MIN_DIST, MAX_DIST);
+
+//     Serial.println("Filtered Distances: L=" + String(leftFiltered) + " M=" + String(midFiltered) + " R=" + String(rightFiltered));
+
+    leftSensorDistance   = leftFiltered  / MAX_DIST;
+    midSensorDistance    = midFiltered   / MAX_DIST;
+    rightSensorDistance  = rightFiltered / MAX_DIST;
+
+//     Serial.println("Normalized Distances: L=" + String(leftSensorDistance) + " M=" + String(midSensorDistance) + " R=" + String(rightSensorDistance));
+
+    vTaskDelay(pdMS_TO_TICKS(20));
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -44,138 +94,145 @@ void setup() {
   }
 
   MotorControl::begin();
+
+  xTaskCreatePinnedToCore(TaskReadSensors, "SensorTask", 4096, NULL, 1, NULL, 0);
 }
 
-const int MIN_SPEED = 30;
-const int MAX_SPEED = 255;
-
-const float MIN_DIST = 50.0;
-const float MAX_DIST = 2000.0;
-
-const float Kp = 0.5;
-
-static float leftFiltered = 0;
-static float rightFiltered = 0;
-static float midFiltered = 0;
-float alpha = 0.7;
-
 void loop() {
-    int leftSensorDistance = sensors.readSensorData(left.index);
-    int midSensorDistance = sensors.readSensorData(mid.index);
-    int rightSensorDistance = sensors.readSensorData(right.index);
+    float clearance = (leftSensorDistance + rightSensorDistance + midSensorDistance) / 3.0;
 
-    leftFiltered  = alpha * leftSensorDistance  + (1 - alpha) * leftFiltered;
-    midFiltered   = alpha * midSensorDistance   + (1 - alpha) * midFiltered;
-    rightFiltered = alpha * rightSensorDistance + (1 - alpha) * rightFiltered;
+    // base speed multiplied by clearance square root
+    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * sqrt(clearance);
+    float maneuverSpeed = constrain(baseSpeed / 2, MIN_SPEED, MAX_SPEED / 2);
 
-    float leftNorm  = normalizeDistance(leftFiltered);
-    float midNorm   = normalizeDistance(midFiltered);
-    float rightNorm = normalizeDistance(rightFiltered);
+    State newState = calculate_state(state, midSensorDistance);
 
-    float clearance = (leftNorm + rightNorm + midNorm) / 3.0;
-    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * clearance;
-    float maneuverSpeed = constrain(baseSpeed / 2, MIN_SPEED * 2, MAX_SPEED / 2);
+    Serial.println("Distances: L=" + String(leftSensorDistance) + " M=" + String(midSensorDistance) + " R=" + String(rightSensorDistance));
+    Serial.println("Current State: " + String(newState));
+    Serial.println("Speeds: Base=" + String(baseSpeed) + " Maneuver=" + String(maneuverSpeed));
 
-    Serial.println("Distances: L=" + String(leftSensorDistance) + " (" + String(leftNorm) + ") M=" + String(midSensorDistance) + " (" + String(midNorm) + ") R=" + String(rightSensorDistance) + " (" + String(rightNorm) + ")");
-    Serial.println("State: " + String(state));
+    if (state == FORWARD && newState != FORWARD) {
+       MotorControl::stop();
+         delay(20);
+    }
 
-    switch (state) {
+    switch (newState) {
       case FORWARD: {
-        // if the mid sensor detects an obstacle closer than 15% of its range (30 sm), switch to AVOID state
-        if (midNorm < 0.15) {
-          MotorControl::stop();
-
-          state = AVOID;
-
-          break;
-        }
-
-        // if the mid sensor detects an obstacle closer than 5% of its range (10 sm), switch to SEARCH state
-        if (midNorm < 0.05) {
-          state = SEARCH;
-
-          break;
-        }
-
-        // error is the difference between left and right distances
-        // if error is positive, the distance to the right obstacle is bigger than to the left one, and we need to slightly turn right
-        // if error is negative, the distance to the left obstacle is bigger than to the right one, and we need to slightly turn left
-        float error = leftNorm - rightNorm;
-
-        float corridorTightness = (MAX_DIST - ((leftSensorDistance + rightSensorDistance) / 2.0)) / MAX_DIST;
-        float sensitivity = 1.0 + corridorTightness * 2.0;
-        float correction = Kp * error * sensitivity;
-        // float correction = (error >= 0 ? sqrt(error) : -sqrt(-error));
-
-        float leftSpeed  = constrain(baseSpeed * (1.0 + correction), MIN_SPEED, baseSpeed);
-        float rightSpeed = constrain(baseSpeed * (1.0 - correction), MIN_SPEED, baseSpeed);
-
-        Serial.printf(
-          "{L:%d M:%d R:%d e:%.2f c:%.2f s:%d}\n",
-          leftSensorDistance,
-          midSensorDistance,
-          rightSensorDistance,
-          error,
-          correction,
-          state
-        );
-
-        MotorControl::moveForward(leftSpeed, rightSpeed);
+        handle_forward_state(leftSensorDistance, rightSensorDistance, baseSpeed);
 
         break;
       }
 
       case AVOID: {
-        if (midNorm > 0.20) {
-          state = FORWARD;
-
-          break;
-        }
-
-        if (midNorm < 0.05) {
-          MotorControl::stop();
-
-          state = SEARCH;
-
-          break;
-        }
-
-        if (leftNorm > rightNorm) {
-          MotorControl::turnRight(maneuverSpeed, maneuverSpeed);
-        } else {
-          MotorControl::turnLeft(maneuverSpeed, maneuverSpeed);
-        }
+        handle_avoid_state(leftSensorDistance, rightSensorDistance, baseSpeed);
 
         break;
       }
 
       case SEARCH: {
-        if (midNorm > 0.20) {
-          state = FORWARD;
-
-          break;
-        }
-
-        if (midNorm > 0.10) {
-          MotorControl::stop();
-
-          state = AVOID;
-
-          break;
-        }
-
-        MotorControl::moveBackward(maneuverSpeed, maneuverSpeed);
+        handle_search_state(leftSensorDistance, rightSensorDistance, baseSpeed);
 
         break;
       }
     }
 
+    state = newState;
+
     delay(20);
 }
 
-// normalize distance MIN_DIST .. MAX_DIST to range 0.0 .. 1.0
-float normalizeDistance(int distance) {
-  distance = constrain(distance, MIN_DIST, MAX_DIST);
+State calculate_state(State currentState, float distance) {
+    switch (currentState) {
+    case FORWARD:
+        if (distance < AVOID_MODE_DIST) {
+            state = AVOID;
+        }
 
-  return (distance - MIN_DIST) / (MAX_DIST - MIN_DIST);
+        if (distance < SEARCH_MODE_DIST) {
+          state = SEARCH;
+        }
+
+        break;
+    case AVOID:
+        if (distance > FORWARD_MODE_DIST) {
+          state = FORWARD;
+        }
+
+        if (distance < SEARCH_MODE_DIST) {
+          state = SEARCH;
+        }
+
+        break;
+    case SEARCH:
+        if (distance > FORWARD_MODE_DIST) {
+          state = FORWARD;
+        }
+
+        if (distance > SEARCH_MODE_DIST) {
+          state = AVOID;
+        }
+
+        break;
+    }
+
+    return state;
+}
+
+void handle_forward_state(float leftDistance, float rightDistance, int speed) {
+    int leftSpeed = speed;
+    int rightSpeed = speed;
+
+    if (leftDistance < rightDistance) {
+      // turn left
+      // rotate right wheel faster forward
+      // rotate left wheel slower forward
+      leftSpeed = speed * leftDistance / rightDistance * Kp;
+    } else {
+      // turn right
+      // rotate right wheel slower forward
+      // rotate left wheel faster forward
+      rightSpeed = speed * rightDistance / leftDistance * Kp;
+    }
+
+    leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
+    rightSpeed = constrain(rightSpeed, MIN_SPEED, leftSpeed);
+
+    MotorControl::moveForward(leftSpeed, rightSpeed);
+}
+
+void handle_avoid_state(float leftDistance, float rightDistance, int speed) {
+    if (leftDistance > rightDistance) {
+      // left distance is bigger
+      // means there is an obstacle on the left
+      // turn right
+      MotorControl::turnRight(speed, speed);
+    } else {
+      // right distance is bigger
+      // means there is an obstacle on the right
+      // turn left
+      MotorControl::turnLeft(speed, speed);
+    }
+}
+
+void handle_search_state(float leftDistance, float rightDistance, int speed) {
+    int leftSpeed = speed;
+    int rightSpeed = speed;
+
+    // take the maximum current speed and make it proportionally slower
+    if (leftDistance < rightDistance) {
+       // turn left
+       // rotate left wheel faster backwards
+       // rotate right wheel slower backwards
+       rightSpeed = speed * leftDistance / rightDistance * Kp;
+    } else {
+       // turn right
+       // rotate right wheel faster backwards
+       // rotate left wheel slower backwards
+       leftSpeed = speed * rightDistance / leftDistance * Kp;
+    }
+
+    leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
+    rightSpeed = constrain(rightSpeed, MIN_SPEED, leftSpeed);
+
+    MotorControl::moveBackward(leftSpeed, rightSpeed);
 }
