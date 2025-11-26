@@ -5,7 +5,7 @@
 #include "SensorControl.h"
 
 const int MIN_SPEED = 30;
-const int MAX_SPEED = 255;
+const int MAX_SPEED = 255 * 0.60;
 
 const float MIN_DIST = 100.0;
 const float MAX_DIST = 1000.0;
@@ -64,19 +64,13 @@ void TaskReadSensors(void *pvParameters) {
     midFiltered = alpha * m + (1 - alpha) * midFiltered;
     rightFiltered = alpha * r + (1 - alpha) * rightFiltered;
 
-//     Serial.println("Raw Distances: L=" + String(l) + " M=" + String(m) + " R=" + String(r));
-
     leftFiltered  = constrain(leftFiltered, MIN_DIST, MAX_DIST);
     midFiltered   = constrain(midFiltered, MIN_DIST, MAX_DIST);
     rightFiltered = constrain(rightFiltered, MIN_DIST, MAX_DIST);
 
-//     Serial.println("Filtered Distances: L=" + String(leftFiltered) + " M=" + String(midFiltered) + " R=" + String(rightFiltered));
-
     leftSensorDistance   = leftFiltered  / MAX_DIST;
     midSensorDistance    = midFiltered   / MAX_DIST;
     rightSensorDistance  = rightFiltered / MAX_DIST;
-
-//     Serial.println("Normalized Distances: L=" + String(leftSensorDistance) + " M=" + String(midSensorDistance) + " R=" + String(rightSensorDistance));
 
     vTaskDelay(pdMS_TO_TICKS(20));
   }
@@ -99,17 +93,14 @@ void setup() {
 }
 
 void loop() {
-    float clearance = (leftSensorDistance + rightSensorDistance + midSensorDistance) / 3.0;
-
-    // base speed multiplied by clearance square root
-    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * sqrt(clearance);
-    float maneuverSpeed = constrain(baseSpeed / 2, MIN_SPEED, MAX_SPEED / 2);
+    float clearance = (leftSensorDistance * 0.3 + rightSensorDistance * 2.4 + midSensorDistance * 0.3) / 3.0;
+    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * clearance;
 
     State newState = calculate_state(state, midSensorDistance);
 
     Serial.println("Distances: L=" + String(leftSensorDistance) + " M=" + String(midSensorDistance) + " R=" + String(rightSensorDistance));
     Serial.println("Current State: " + String(newState));
-    Serial.println("Speeds: Base=" + String(baseSpeed) + " Maneuver=" + String(maneuverSpeed));
+    Serial.println("Speeds: Base=" + String(baseSpeed));
 
     if (state == FORWARD && newState != FORWARD) {
        MotorControl::stop();
@@ -195,7 +186,7 @@ void handle_forward_state(float leftDistance, float rightDistance, int speed) {
     }
 
     leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
-    rightSpeed = constrain(rightSpeed, MIN_SPEED, leftSpeed);
+    rightSpeed = constrain(rightSpeed, MIN_SPEED, rightSpeed);
 
     MotorControl::moveForward(leftSpeed, rightSpeed);
 }
@@ -232,7 +223,7 @@ void handle_search_state(float leftDistance, float rightDistance, int speed) {
     }
 
     leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
-    rightSpeed = constrain(rightSpeed, MIN_SPEED, leftSpeed);
+    rightSpeed = constrain(rightSpeed, MIN_SPEED, rightSpeed);
 
     MotorControl::moveBackward(leftSpeed, rightSpeed);
 }
