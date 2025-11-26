@@ -14,7 +14,10 @@ const float FORWARD_MODE_DIST = 500.0 / MAX_DIST;
 const float AVOID_MODE_DIST = 300.0 / MAX_DIST;
 const float SEARCH_MODE_DIST = 150.0 / MAX_DIST;
 
-const float Kp = 0.7;
+const int DELTA_TIME_MS = 20;
+
+const float Kp = 0.8;
+const float Kd = 0.002;
 
 enum State {
   FORWARD,
@@ -50,6 +53,8 @@ static float leftSensorDistance = 0.0;
 static float midSensorDistance = 0.0;
 static float rightSensorDistance = 0.0;
 
+static float previous_error = 1.0;
+
 void TaskReadSensors(void *pvParameters) {
   int leftFiltered = 0;
   int midFiltered = 0;
@@ -72,7 +77,7 @@ void TaskReadSensors(void *pvParameters) {
     midSensorDistance    = midFiltered   / MAX_DIST;
     rightSensorDistance  = rightFiltered / MAX_DIST;
 
-    vTaskDelay(pdMS_TO_TICKS(20));
+    vTaskDelay(pdMS_TO_TICKS(DELTA_TIME_MS));
   }
 }
 
@@ -104,7 +109,7 @@ void loop() {
 
     if (state == FORWARD && newState != FORWARD) {
        MotorControl::stop();
-         delay(20);
+         delay(DELTA_TIME_MS);
     }
 
     switch (newState) {
@@ -129,7 +134,7 @@ void loop() {
 
     state = newState;
 
-    delay(20);
+    delay(DELTA_TIME_MS);
 }
 
 State calculate_state(State currentState, float distance) {
@@ -169,20 +174,29 @@ State calculate_state(State currentState, float distance) {
     return state;
 }
 
+
 void handle_forward_state(float leftDistance, float rightDistance, int speed) {
     int leftSpeed = speed;
     int rightSpeed = speed;
 
     if (leftDistance < rightDistance) {
+      float error = leftDistance / rightDistance;
+      float derivative = (error - previous_error) / 0.02;
+
       // turn left
       // rotate right wheel faster forward
       // rotate left wheel slower forward
-      leftSpeed = speed * leftDistance / rightDistance * Kp;
+      leftSpeed = speed * (leftDistance / rightDistance * Kp + derivative * Kd);
+      previous_error = error;
     } else {
+      float error = rightDistance / leftDistance;
+      float derivative = (error - previous_error) / 0.02;
+
       // turn right
       // rotate right wheel slower forward
       // rotate left wheel faster forward
-      rightSpeed = speed * rightDistance / leftDistance * Kp;
+      rightSpeed = speed * (rightDistance / leftDistance * Kp + derivative * Kd);
+      previous_error = error;
     }
 
     leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
