@@ -16,8 +16,11 @@ const float SEARCH_MODE_DIST = 150.0 / MAX_DIST;
 
 const int DELTA_TIME_MS = 20;
 
-const float Kp = 0.8;
-const float Kd = 0.002;
+const float Kp = 0.6;
+const float Kd = -0.002;
+const float Ki = -0.001;
+
+float integration = 0.0;
 
 enum State {
   FORWARD,
@@ -108,8 +111,9 @@ void loop() {
     Serial.println("Speeds: Base=" + String(baseSpeed));
 
     if (state == FORWARD && newState != FORWARD) {
-       MotorControl::stop();
-         delay(DELTA_TIME_MS);
+      MotorControl::stop();
+      integration = 0.0;
+      delay(DELTA_TIME_MS);
     }
 
     switch (newState) {
@@ -180,21 +184,30 @@ void handle_forward_state(float leftDistance, float rightDistance, int speed) {
 
     if (leftDistance < rightDistance) {
       float error = leftDistance / rightDistance;
-      float derivative = (error - previous_error) / 0.02;
+      integration += error * 0.02 * Ki;
+    } else {
+      float error = rightDistance / leftDistance;
+      integration -= error * 0.02 * Ki;
+    }
 
+    integration = constrain(integration, -0.3, 0.3);
+
+    if (leftDistance < rightDistance) {
+      float error = leftDistance / rightDistance;
+      float derivative = (previous_error - error) / 0.02;
       // turn left
       // rotate right wheel faster forward
       // rotate left wheel slower forward
-      leftSpeed = speed * (leftDistance / rightDistance * Kp + derivative * Kd);
+      leftSpeed = speed * (leftDistance / rightDistance * Kp + derivative * Kd + integration);
       previous_error = error;
     } else {
       float error = rightDistance / leftDistance;
-      float derivative = (error - previous_error) / 0.02;
+      float derivative = (previous_error - error) / 0.02;
 
       // turn right
       // rotate right wheel slower forward
       // rotate left wheel faster forward
-      rightSpeed = speed * (rightDistance / leftDistance * Kp + derivative * Kd);
+      rightSpeed = speed * (rightDistance / leftDistance * Kp + derivative * Kd - integration);
       previous_error = error;
     }
 
