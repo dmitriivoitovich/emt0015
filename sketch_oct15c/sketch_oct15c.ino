@@ -14,11 +14,11 @@ const float FORWARD_MODE_DIST = 500.0 / MAX_DIST;
 const float AVOID_MODE_DIST = 300.0 / MAX_DIST;
 const float SEARCH_MODE_DIST = 150.0 / MAX_DIST;
 
-const float SPEED_SMOOTHING_ALPHA = 0.3;
+const float SPEED_SMOOTHING_ALPHA = 0.7;
 
 const int DELTA_TIME_MS = 20;
 
-const float Kp = 0.6;
+const float Kp = 0.7;
 const float Kd = 0.002;
 
 enum State {
@@ -100,11 +100,13 @@ void setup() {
   MotorControl::begin();
 
   xTaskCreatePinnedToCore(TaskReadSensors, "SensorTask", 4096, NULL, 1, NULL, 0);
+
+  delay(5000);
 }
 
 void loop() {
     float maneuverClearance = (leftSensorDistance * 0.5 + midSensorDistance * 2.0 + rightSensorDistance * 0.5) / 3.0;
-    float forwardClearance = pow(midSensorDistance, 1.4);
+    float forwardClearance = pow(midSensorDistance, 1.2);
 
     float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * forwardClearance;
     float maneuverSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * maneuverClearance;
@@ -192,7 +194,7 @@ void handleForwardState(float leftDistance, float rightDistance, int speed) {
 
     if (leftDistance < rightDistance) {
       float error = leftDistance / rightDistance;
-      float derivative = (error - previous_error) / 0.02;
+      float derivative = (error - previous_error) / (DELTA_TIME_MS / 1000.0);
 
       // turn left
       // rotate right wheel faster forward
@@ -201,7 +203,7 @@ void handleForwardState(float leftDistance, float rightDistance, int speed) {
       previous_error = error;
     } else {
       float error = rightDistance / leftDistance;
-      float derivative = (error - previous_error) / 0.02;
+      float derivative = (error - previous_error) / (DELTA_TIME_MS / 1000.0);
 
       // turn right
       // rotate right wheel slower forward
