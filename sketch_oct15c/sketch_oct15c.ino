@@ -5,7 +5,7 @@
 #include "SensorControl.h"
 
 const int MIN_SPEED = 30;
-const int MAX_SPEED = 255 * 0.60;
+const int MAX_SPEED = 255 * 0.80;
 
 const float MIN_DIST = 100.0;
 const float MAX_DIST = 1000.0;
@@ -14,9 +14,11 @@ const float FORWARD_MODE_DIST = 500.0 / MAX_DIST;
 const float AVOID_MODE_DIST = 300.0 / MAX_DIST;
 const float SEARCH_MODE_DIST = 150.0 / MAX_DIST;
 
+const float SPEED_SMOOTHING_ALPHA = 0.3;
+
 const int DELTA_TIME_MS = 20;
 
-const float Kp = 0.8;
+const float Kp = 0.6;
 const float Kd = 0.002;
 
 enum State {
@@ -52,6 +54,9 @@ float alpha = 0.7;
 static float leftSensorDistance = 0.0;
 static float midSensorDistance = 0.0;
 static float rightSensorDistance = 0.0;
+
+static float leftMotorSpeed = 0;
+static float rightMotorSpeed = 0;
 
 static float previous_error = 1.0;
 
@@ -98,46 +103,31 @@ void setup() {
 }
 
 void loop() {
-    float clearance = (leftSensorDistance * 0.3 + rightSensorDistance * 2.4 + midSensorDistance * 0.3) / 3.0;
-    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * clearance;
+    float maneuverClearance = (leftSensorDistance * 0.5 + midSensorDistance * 2.0 + rightSensorDistance * 0.5) / 3.0;
+    float forwardClearance = pow(midSensorDistance, 1.4);
 
-    State newState = calculate_state(state, midSensorDistance);
+    float baseSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * forwardClearance;
+    float maneuverSpeed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * maneuverClearance;
+
+    State newState = calculateState(state, midSensorDistance);
 
     Serial.println("Distances: L=" + String(leftSensorDistance) + " M=" + String(midSensorDistance) + " R=" + String(rightSensorDistance));
     Serial.println("Current State: " + String(newState));
     Serial.println("Speeds: Base=" + String(baseSpeed));
 
-    if (state == FORWARD && newState != FORWARD) {
-       MotorControl::stop();
-         delay(DELTA_TIME_MS);
+    if (state != newState) {
+       state = newState;
+       stop();
+       delay(DELTA_TIME_MS * 5);
     }
 
-    switch (newState) {
-      case FORWARD: {
-        handle_forward_state(leftSensorDistance, rightSensorDistance, baseSpeed);
-
-        break;
-      }
-
-      case AVOID: {
-        handle_avoid_state(leftSensorDistance, rightSensorDistance, baseSpeed);
-
-        break;
-      }
-
-      case SEARCH: {
-        handle_search_state(leftSensorDistance, rightSensorDistance, baseSpeed);
-
-        break;
-      }
-    }
-
-    state = newState;
+    handleState(state, leftSensorDistance, rightSensorDistance, baseSpeed, maneuverSpeed);
 
     delay(DELTA_TIME_MS);
 }
 
-State calculate_state(State currentState, float distance) {
+
+State calculateState(State currentState, float distance) {
     switch (currentState) {
     case FORWARD:
         if (distance < AVOID_MODE_DIST) {
@@ -174,7 +164,29 @@ State calculate_state(State currentState, float distance) {
     return state;
 }
 
-void handle_forward_state(float leftDistance, float rightDistance, int speed) {
+void handleState(State state, float leftDistance, float rightDistance, int baseSpeed, int maneuverSpeed) {
+    switch (state) {
+      case FORWARD: {
+        handleForwardState(leftDistance, rightDistance, baseSpeed);
+
+        break;
+      }
+
+      case AVOID: {
+        handleAvoidState(leftDistance, rightDistance, maneuverSpeed);
+
+        break;
+      }
+
+      case SEARCH: {
+        handleSearchState(leftDistance, rightDistance, maneuverSpeed);
+
+        break;
+      }
+    }
+}
+
+void handleForwardState(float leftDistance, float rightDistance, int speed) {
     int leftSpeed = speed;
     int rightSpeed = speed;
 
@@ -201,24 +213,24 @@ void handle_forward_state(float leftDistance, float rightDistance, int speed) {
     leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
     rightSpeed = constrain(rightSpeed, MIN_SPEED, rightSpeed);
 
-    MotorControl::moveForward(leftSpeed, rightSpeed);
+    moveForward(leftSpeed, rightSpeed);
 }
 
-void handle_avoid_state(float leftDistance, float rightDistance, int speed) {
+void handleAvoidState(float leftDistance, float rightDistance, int speed) {
     if (leftDistance > rightDistance) {
       // left distance is bigger
       // means there is an obstacle on the left
       // turn right
-      MotorControl::turnRight(speed, speed);
+      turnRight(speed, speed);
     } else {
       // right distance is bigger
       // means there is an obstacle on the right
       // turn left
-      MotorControl::turnLeft(speed, speed);
+      turnLeft(speed, speed);
     }
 }
 
-void handle_search_state(float leftDistance, float rightDistance, int speed) {
+void handleSearchState(float leftDistance, float rightDistance, int speed) {
     int leftSpeed = speed;
     int rightSpeed = speed;
 
@@ -238,5 +250,45 @@ void handle_search_state(float leftDistance, float rightDistance, int speed) {
     leftSpeed  = constrain(leftSpeed, MIN_SPEED, leftSpeed);
     rightSpeed = constrain(rightSpeed, MIN_SPEED, rightSpeed);
 
-    MotorControl::moveBackward(leftSpeed, rightSpeed);
+    moveBackward(leftSpeed, rightSpeed);
+}
+
+void moveForward(int targetLeftSpeed, int targetRightSpeed) {
+    leftMotorSpeed = smoothenSpeed(leftMotorSpeed, targetLeftSpeed);
+    rightMotorSpeed = smoothenSpeed(rightMotorSpeed, targetRightSpeed);
+
+    MotorControl::moveForward(leftMotorSpeed, rightMotorSpeed);
+}
+
+void moveBackward(int targetLeftSpeed, int targetRightSpeed) {
+    leftMotorSpeed = smoothenSpeed(leftMotorSpeed, targetLeftSpeed);
+    rightMotorSpeed = smoothenSpeed(rightMotorSpeed, targetRightSpeed);
+
+    MotorControl::moveBackward(leftMotorSpeed, rightMotorSpeed);
+}
+
+void turnLeft(int targetLeftSpeed, int targetRightSpeed) {
+    leftMotorSpeed = smoothenSpeed(leftMotorSpeed, targetLeftSpeed);
+    rightMotorSpeed = smoothenSpeed(rightMotorSpeed, targetRightSpeed);
+
+    MotorControl::turnLeft(leftMotorSpeed, rightMotorSpeed);
+}
+
+void turnRight(int targetLeftSpeed, int targetRightSpeed) {
+    leftMotorSpeed = smoothenSpeed(leftMotorSpeed, targetLeftSpeed);
+    rightMotorSpeed = smoothenSpeed(rightMotorSpeed, targetRightSpeed);
+
+    MotorControl::turnRight(leftMotorSpeed, rightMotorSpeed);
+}
+
+void stop() {
+    leftMotorSpeed = 0;
+    rightMotorSpeed = 0;
+
+    MotorControl::stop();
+}
+
+// take the target speed and smoothen it using exponential moving average
+int smoothenSpeed(int currentSpeed, int targetSpeed) {
+    return currentSpeed + SPEED_SMOOTHING_ALPHA * (targetSpeed - currentSpeed);
 }

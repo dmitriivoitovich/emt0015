@@ -39,7 +39,7 @@ bool SensorControl::initOne(Sensor& sensor) {
   }
 
   devs_[sensor.index].setAddress(sensor.i2cAddress);
-  devs_[sensor.index].startContinuous(100);
+  devs_[sensor.index].startContinuous(20);
 
   return true;
 }
